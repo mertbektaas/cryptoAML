@@ -35,6 +35,7 @@ tests/contract
 tests/integration
 tests/performance
 tests/security
+packages/observability/python/cryptoaml_observability
 "
 
 for path in $required_paths; do
@@ -43,6 +44,10 @@ for path in $required_paths; do
     exit 1
   fi
 done
+
+python3 -m compileall -q \
+  "$ROOT_DIR/packages/observability/python" \
+  "$ROOT_DIR/tests"
 
 for script in \
   "$ROOT_DIR/scripts/bootstrap.sh" \

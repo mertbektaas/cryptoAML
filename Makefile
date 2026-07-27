@@ -38,7 +38,8 @@ build: config ## Validate the current buildable workspace skeleton.
 lint: ## Validate repository structure, shell scripts, and Compose syntax.
 	@./scripts/validate-foundation.sh
 
-test: lint ## Run foundation smoke tests.
+test: lint ## Run foundation and observability smoke tests.
+	@python3 -m unittest discover -s tests -p 'test_*.py'
 	@echo "Foundation smoke tests passed."
 
 migrate: .env ## Run registered SQL migrations; succeeds when none exist yet.
