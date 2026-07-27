@@ -56,6 +56,54 @@ Bu kararlar F0-K1-B için temel referanstır:
 8. Teslim modeli at-least-once, consumer davranışı idempotent, replay ise
    parser/schema sürümleriyle tekrarlanabilirdir.
 
+## F0-K1-C operasyon kararları
+
+### Gözlemlenebilirlik yaklaşımı
+
+Bu başlık, sistemin içeride ne yaptığını anlayabilmemizi kapsar:
+
+- Log: bir olayın metinsel/JSON kaydı.
+- Metric: olayların sayısal ölçümü; örneğin hata sayısı veya işlem süresi.
+- Trace: tek bir isteğin servisler arasındaki yolculuğu.
+
+İlk aşamada JSON structured log kullanılır. Her kayıtta en az timestamp,
+level, service, message ve correlation/trace alanları bulunur.
+
+İlk OpenTelemetry adımı yalnızca SDK ve ortak instrumentation iskeletidir;
+telemetry console'a veya seçilen basit exporter'a çıkabilir. Daha sonra
+OpenTelemetry Collector + Jaeger + Prometheus + Grafana topolojisine geçiş
+yapılacaktır. Bu geçiş şimdiden planın parçasıdır; unutulmaması gereken bir
+stretch değil, operasyon tabanının sonraki adımıdır.
+
+### Correlation ID ve trace context
+
+İstek dışarıdan `traceparent` ile gelirse W3C Trace Context bilgisi korunur.
+Gelmezse ilk servis yeni bir trace/correlation kimliği üretir. Bu kimlik API,
+event ve log zinciri boyunca taşınır. Böylece tek bir transaction'ın hangi
+servislerden geçtiği aranabilir.
+
+### Health sözleşmesi
+
+Servisler `/livez`, `/readyz` ve `/startupz` endpoint'lerini tanımlar:
+
+- `/livez`: proses ayakta mı?
+- `/readyz`: trafik kabul etmeye hazır mı; gerekli dependency'ler erişilebilir mi?
+- `/startupz`: ilk açılış/migration tamamlandı mı?
+
+`/readyz` bağımlılık-aware çalışır; PostgreSQL, Redpanda veya Neo4j hazır değilse
+servis canlı olsa bile trafik almaya hazır kabul edilmez. Endpoint adlarındaki
+`z`, Kubernetes ve cloud-native sistemlerdeki kısa probe adlandırma geleneğidir;
+özel bir kriptografi veya gizli ayar değildir.
+
+### CI aşamaları
+
+- İlk aşama: lint + unit test + secret scan + dependency scan.
+- Sonraki aşama: bunlara Compose/integration smoke test ve Docker servis
+  doğrulaması eklenir.
+
+İkinci aşama bilinçli olarak sonraya bırakılır; servis kodları ve gerçek
+integration testleri oluştuğunda CI genişletilir.
+
 Detaylı karar kaydı, F0-K1-B branch'inin
 [`docs/adr/0002-data-architecture-decisions.md`](https://github.com/mertbektaas/cryptoAML/blob/agent/f0-data-architecture-decisions/docs/adr/0002-data-architecture-decisions.md)
 dosyasındadır. Branch PR'ı merge edildiğinde bu bağlantı `main` içindeki dosyaya
