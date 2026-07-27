@@ -65,7 +65,7 @@ Bu kararlar F0-K1-B için temel referanstır:
   1. `@crypto-aml/canonical-schema` (v1.0.0): Address, Transaction, Token, SmartContract, CrossChainBridge varlık şemaları ve doğrulama fonksiyonları.
   2. `@crypto-aml/event-contracts` (v1.0.0): RawIngestedEvent, NormalizedMovementEvent, AssessmentEvent olay sözleşmeleri ve doğrulama fonksiyonları.
   3. `@crypto-aml/policy-schema` (v1.0.0): Signal, Rule, Weight, CapFloor, Tier, Policy risk şemaları ve doğrulama fonksiyonları.
-- **Derleme ve Test**: `npm run build` ile `tsc -b` derlemesi, `npm run test` ile Node.js test runner (`node --test`) doğrulması.
+- **Derleme ve Test**: `npm run build` ile `tsc -b` derlemesi, `npm run test` ile Node.js test runner (`node --test`) doğrulaması.
 
 ## F1-K1-A EVM adapter kararları
 
@@ -145,8 +145,7 @@ integration testleri oluştuğunda CI genişletilir.
 
 Detaylı karar kaydı, F0-K1-B branch'inin
 [`docs/adr/0002-data-architecture-decisions.md`](https://github.com/mertbektaas/cryptoAML/blob/agent/f0-data-architecture-decisions/docs/adr/0002-data-architecture-decisions.md)
-dosyasındadır. Branch PR'ı merge edildiğinde bu bağlantı `main` içindeki dosyaya
-taşınacaktır.
+dosyasındaki gibidir.
 
 ## Fazlara göre sahiplik haritası
 

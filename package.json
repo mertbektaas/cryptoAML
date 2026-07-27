@@ -1,0 +1,20 @@
+{
+  "name": "crypto-aml-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "On-Chain Intelligence & Crypto AML Platform Monorepo",
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "apps/*",
+    "pipelines/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@crypto-aml/event-contracts",
+  "version": "1.0.0",
+  "description": "Event contract schemas for Raw Ingested, Normalized Movement, and Risk Assessment events",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "test": "node --test dist/**/*.test.js"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0"
+  }
+}
