@@ -30,10 +30,10 @@ etmeden görev tamamlanmış sayılmaz.
 - F0-K3-B: [#9](https://github.com/mertbektaas/cryptoAML/issues/9)
 - F0-K3-C: [#10](https://github.com/mertbektaas/cryptoAML/issues/10)
 
-Görev durumu Project üzerinde, teknik kararlar ADR içinde, kod değişiklikleri
-ise branch ve pull request üzerinde takip edilir. Sohbette alınan karar,
-ADR/issue'a yazılmadıysa ekip kararı kabul edilmez; sohbet geçmişi arşiv değil,
-hafızası da biraz nazlıdır.
+Görev durumu Project üzerinde, kararların kısa özeti bu dosyada, kod değişiklikleri
+ise `main` geçmişinde takip edilir. Bu ekipte kararlar için zorunlu toplantı,
+issue tartışması veya pull request bekleme süreci yoktur. Sohbette alınan önemli
+bir karar, kaybolmaması için bu dosyaya kısa ve anlaşılır biçimde yazılır.
 
 ## Onaylanan ortak teknik kararlar
 
@@ -119,17 +119,27 @@ bağımlılıkları ve alt görevleri proje kapsamındaki faz planında tutulur.
 - UI teknolojisi değişebilir; canonical/event/assessment sözleşmeleri
   framework'e göre değişmez.
 
-## Branch, PR ve teslim kuralı
+## Hızlı ekip teslim kuralı
 
-1. Her görev için `agent/f<faz>-<alan>-<kisa-aciklama>` branch'i açılır.
-2. Commit tek bir anlaşılır işi anlatır.
-3. PR açıklamasında issue numarası, değişen sözleşme, testler ve replay/migration
-   etkisi yazılır.
-4. İlgili sahip review etmeden PR merge edilmez.
-5. Yeni alan eklemek geriye uyumlu değilse schema major version ve migration
-   notu gerekir.
-6. Bir görev “kod yazıldı” diye değil; test, log/metric, hata davranışı,
-   dokümantasyon ve entegrasyon örneği tamamlanınca kapanır.
+Bu üç kişilik staj ekibinde küçük kararlar doğrudan `main` üzerinden ilerler:
+
+1. Önce güncel kodu al: `git pull --rebase origin main`.
+2. Kendi görevindeki kodu veya bu rehberdeki kısa kararı güncelle.
+3. Tek anlaşılır commit oluştur.
+4. `git push origin main` ile doğrudan gönder.
+5. Push sonrası Project kartını güncelle; gerekirse ekip sohbetine commit
+   bağlantısını bırak.
+
+Sadece şu iki kural sabittir:
+
+- `git push --force` kullanılmaz.
+- Aynı dosyada eş zamanlı değişiklik çıkarsa önce ekip arkadaşına haber verilir;
+  başkasının değişikliği sessizce ezilmez.
+
+Büyük ve riskli değişikliklerde branch/PR açmak hâlâ kullanılabilir, fakat küçük
+görevler için zorunlu değildir. Bir kararın ayrıntılı gerekçesi gerekiyorsa
+`docs/adr/` altına kısa bir dosya eklenir; her karar için ADR yazmak şart
+değildir.
 
 ## Faz 0 için günlük çalışma sırası
 
