@@ -41,9 +41,10 @@ Bu kararlar F0-K1-B için temel referanstır:
 
 1. İlk canlı veri kapsamı Ethereum Mainnet'ten kontrollü block-range alımıdır.
    Testler sabit fixture kullanır; ilk aşamada bütün Mainnet'i indirmeyiz.
-2. Veri/indexer/analitik servislerinde Python, API ve arayüz tarafında ise
-   teknoloji-bağımsız JSON sözleşmeleri kullanılır. Can'ın UI framework'ü bu
-   sözleşmeye göre seçilebilir.
+2. Servisler arası iletişim teknoloji-bağımsız JSON/event sözleşmeleriyle
+   yapılır. F1-K1 EVM indexer'ının ilk implementasyonu Go olacaktır; risk
+   engine gibi sonraki servisler Python kullanabilir. Dil farkı sözleşme,
+   version ve contract testleriyle izole edilir.
 3. Graph altyapısı local geliştirmede Neo4j Community tek node olarak vardır.
    Browser `http://localhost:7474`, Bolt `bolt://localhost:7687` üzerindedir.
 4. Ortak canonical/event/policy sözleşmelerinin ilk formatı JSON Schema'dır.
@@ -55,6 +56,34 @@ Bu kararlar F0-K1-B için temel referanstır:
    `eip155:1`; transaction kimliği chain namespace + tx hash'tir.
 8. Teslim modeli at-least-once, consumer davranışı idempotent, replay ise
    parser/schema sürümleriyle tekrarlanabilirdir.
+
+## F1-K1-A EVM adapter kararları
+
+Bu kararlar Mert'in EVM adapter görevinde uygulanır. Performans hedefi yalnızca
+programlama dili seçimi değildir; RPC batching, sınırlı paralellik, timeout,
+retry/backoff, circuit breaker, raw yazma ve idempotent işleme birlikte ölçülür.
+
+- **Dil:** Go. Adapter, ileride Python kullanabilecek risk engine veya başka
+  servislerle JSON/event sözleşmeleri üzerinden konuşur; servislerin aynı dilde
+  olması şart değildir.
+- **RPC yaklaşımı:** Birincil + yedek provider arayüzü. Provider seçimi
+  adapter koduna gömülmez; rate-limit ve geçici hata durumunda fallback yapılır.
+- **Çalışma modu:** Kontrollü geçmiş block-range alımı ve live-tail birlikte
+  desteklenir. Range-first veya live-tail seçimi ürün kapsamını azaltmaz;
+  ikisi aynı adapter sözleşmesinin çalışma modlarıdır.
+- **Raw arşiv:** Garage/S3-compatible üzerinde JSON envelope + gzip + SHA-256
+  payload hash + provider/source metadata.
+- **Hata politikası:** Timeout, exponential backoff ve jitter içeren retry;
+  sürekli başarısız provider için circuit breaker.
+- **Finality:** Provider'ın `finalized` bilgisini kullan; destek yoksa
+  yapılandırılmış confirmation sayısına düşen hibrit politika.
+- **Adapter çıktısı:** Ham RPC cevabını koruyan, `chain_namespace`, block
+  bilgisi, observed time, provider ve payload hash içeren ortak adapter
+  envelope.
+- **Canonical geçiş:** Bu görev canonical modele dönüştürme yapmaz. Raw
+  envelope'dan canonical Chain/Block/Transaction/Movement kayıtlarını üretme
+  işi F1-K2-A normalizer görevidir; adapter yalnızca güvenilir ham veri ve
+  ortak envelope yayımlar.
 
 ## F0-K1-C operasyon kararları
 
