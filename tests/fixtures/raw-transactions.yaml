@@ -1,0 +1,102 @@
+# ==============================================================================
+# cryptoAML — Raw Transaction Test Fixtures (F0-K2-C)
+# Source: Ethereum Mainnet Public RPC & Synthetic Edge Cases
+# License: MIT License (https://opensource.org/licenses/MIT)
+# Purpose: Raw transaction payload fixtures for indexer and normalizer testing
+# ==============================================================================
+
+version: "1.0.0"
+source: "Ethereum Mainnet Public Fixtures"
+license: "MIT"
+description: "Deterministic raw block/transaction fixtures covering Native, ERC-20, Multi-Event, Contract Creation, and Malformed Failure cases."
+
+fixtures:
+  # 1. Native ETH Transfer Fixture
+  native_transfer:
+    id: "f1111111-1111-1111-1111-111111111111"
+    chain: "ETHEREUM"
+    txHash: "0x8888888888888888888888888888888888888888888888888888888888888888"
+    blockNumber: 19000001
+    timestamp: "2026-07-27T10:00:00Z"
+    fromAddress: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+    toAddress: "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B"
+    value: "1000000000000000000" # 1.0 ETH in wei
+    fee: "21000000000000"
+    status: "SUCCESS"
+    inputData: "0x"
+
+  # 2. ERC-20 Token Transfer Fixture (USDT)
+  erc20_transfer:
+    id: "f2222222-2222-2222-2222-222222222222"
+    chain: "ETHEREUM"
+    txHash: "0x7777777777777777777777777777777777777777777777777777777777777777"
+    blockNumber: 19000002
+    timestamp: "2026-07-27T10:05:00Z"
+    fromAddress: "0x1111111111111111111111111111111111111111"
+    toAddress: "0x0000000000000000000000000000000000000002" # USDT Contract Address
+    value: "0"
+    fee: "65000000000000"
+    status: "SUCCESS"
+    inputData: "0xa9059cbb0000000000000000000000002222222222222222222222222222222222222222000000000000000000000000000000000000000000000000000000003b9aca00"
+    logs:
+      - address: "0x0000000000000000000000000000000000000002"
+        topics:
+          - "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" # Transfer event signature
+          - "0x0000000000000000000000001111111111111111111111111111111111111111" # From
+          - "0x0000000000000000000000002222222222222222222222222222222222222222" # To
+        data: "0x000000000000000000000000000000000000000000000000000000003b9aca00" # 1000 USDT (6 decimals)
+
+  # 3. Multiple Events Transaction Fixture (DEX Swap / Multi-token Transfer)
+  multiple_events:
+    id: "f3333333-3333-3333-3333-333333333333"
+    chain: "ETHEREUM"
+    txHash: "0x6666666666666666666666666666666666666666666666666666666666666666"
+    blockNumber: 19000003
+    timestamp: "2026-07-27T10:10:00Z"
+    fromAddress: "0x3333333333333333333333333333333333333333"
+    toAddress: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" # Uniswap V2 Router
+    value: "500000000000000000" # 0.5 ETH
+    fee: "120000000000000"
+    status: "SUCCESS"
+    inputData: "0x38ed1739..."
+    logs:
+      - address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" # WETH Deposit
+        topics:
+          - "0xe1fff882346f6100e4b52ada12307f1504a7a9658b735a395e9737fc39ac1069"
+        data: "0x00000000000000000000000000000000000000000000000006f05b59d3b20000"
+      - address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" # USDC Transfer
+        topics:
+          - "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+          - "0x0000000000000000000000007a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+          - "0x0000000000000000000000003333333333333333333333333333333333333333"
+        data: "0x000000000000000000000000000000000000000000000000000000005f5e1000" # 1600 USDC
+
+  # 4. Smart Contract Creation Fixture
+  contract_creation:
+    id: "f4444444-4444-4444-4444-444444444444"
+    chain: "ETHEREUM"
+    txHash: "0x5555555555555555555555555555555555555555555555555555555555555555"
+    blockNumber: 19000004
+    timestamp: "2026-07-27T10:15:00Z"
+    fromAddress: "0x4444444444444444444444444444444444444444"
+    toAddress: null
+    createdContractAddress: "0x5555555555555555555555555555555555555555"
+    value: "0"
+    fee: "500000000000000"
+    status: "SUCCESS"
+    inputData: "0x608060405234801561001057600080fd5b50604051610120380380610120833981016040528051"
+
+  # 5. Decode Failure Edge Case Fixture
+  decode_failure:
+    id: "f5555555-5555-5555-5555-555555555555"
+    chain: "ETHEREUM"
+    txHash: "0x4444444444444444444444444444444444444444444444444444444444444444"
+    blockNumber: 19000005
+    timestamp: "2026-07-27T10:20:00Z"
+    fromAddress: "0x5555555555555555555555555555555555555555"
+    toAddress: "0x6666666666666666666666666666666666666666"
+    value: "0"
+    fee: "21000000000000"
+    status: "FAILED"
+    inputData: "0xMALFORMED_HEX_CORRUPTED_PAYLOAD"
+    errorReason: "EVMSimulationError: Bad opcode or truncated calldata"

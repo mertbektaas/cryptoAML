@@ -78,6 +78,17 @@ Bu kararlar F0-K1-B için temel referanstır:
   4. **ReproducibilityMetadataSchema**: `datasetSnapshotId`, `featureVersion`, `policyVersion`, `modelVersion`, `codeCommitHash` ve `evaluatedAt` zaman damgası (Past replay / Audit izlenebilirliği).
   5. **AssessmentExplainabilitySchema**: `Evidence → Signal → Assessment` zincirini bağlayan nihai açıklanabilirlik veri yapısı ve `validateAssessmentExplainability` fonksiyonu.
 
+## F0-K2-C Golden Fixture Temeli Kararları (Abdullah - @acam49)
+
+- **Seçilen Mimari Yaklaşım**: **YAML Formatında Fixture ve Graph Topolojisi Tanımları & Deterministik Test Setleri**
+- **Gerekçe**: YAML formatının kolay okunabilirliği, yorum satırları taşıyabilmesi, dil bağımsızlığı (Go, Python, TypeScript) ve tüm ekip için ortak referans (Single Source of Truth) oluşturması.
+- **Oluşturulan Fixture ve Golden Setler**:
+  1. `tests/fixtures/raw-transactions.yaml` (Lisans: MIT): `native_transfer`, `erc20_transfer`, `multiple_events`, `contract_creation` ve `decode_failure` ham veri test örnekleri.
+  2. `tests/golden-datasets/normalized-movements.yaml` (Lisans: MIT): Ham verilerin beklenen standart normalize çıktı yanıtları (`native_transfer_golden`, `erc20_transfer_golden`, `contract_creation_golden`, `decode_failure_golden`).
+  3. `tests/golden-datasets/graph-topologies.yaml` (Lisans: MIT): `rapid_pass_through` (hızlı transit), `fan_in` (toplama), `fan_out` (dağıtma) ve `label_exposure` (yaptırımlı adres 1-hop/2-hop teması) graph test verileri.
+- **Doğrulama ve Otomasyon**: `@crypto-aml/canonical-schema` paketi altına `yaml` bağımlılığı ve `fixtures.test.ts` eklenerek tüm YAML dosyalarının şemalara %100 uyumu test edildi.
+
+
 
 ## F1-K1-A EVM adapter kararları
 

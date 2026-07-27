@@ -1,0 +1,115 @@
+# ==============================================================================
+# cryptoAML — Golden Graph Topologies (F0-K2-C)
+# Source: Graph Analytics & Intelligence Benchmarks
+# License: MIT License (https://opensource.org/licenses/MIT)
+# Purpose: Small deterministic graph topologies for pass-through, fan-in/out, and exposure tests
+# ==============================================================================
+
+version: "1.0.0"
+source: "Graph Intelligence Benchmarks"
+license: "MIT"
+description: "Deterministic graph topology datasets for rapid pass-through, fan-in/fan-out, and label exposure testing."
+
+topologies:
+  # 1. Rapid Pass-Through Pattern (A -> B -> C within 2 blocks)
+  rapid_pass_through:
+    topologyType: "RAPID_PASS_THROUGH"
+    nodes:
+      - id: "0xA111111111111111111111111111111111111111"
+        type: "INITIAL_SENDER"
+      - id: "0xB222222222222222222222222222222222222222"
+        type: "INTERMEDIARY_PASS_THROUGH"
+      - id: "0xC333333333333333333333333333333333333333"
+        type: "FINAL_RECIPIENT"
+    edges:
+      - source: "0xA111111111111111111111111111111111111111"
+        target: "0xB222222222222222222222222222222222222222"
+        txHash: "0xpass111111111111111111111111111111111111111111111111111111111111"
+        blockNumber: 19000010
+        valueEth: 10.0
+        timeDeltaSeconds: 0
+      - source: "0xB222222222222222222222222222222222222222"
+        target: "0xC333333333333333333333333333333333333333"
+        txHash: "0xpass222222222222222222222222222222222222222222222222222222222222"
+        blockNumber: 19000011
+        valueEth: 9.99 # Minor gas deduction
+        timeDeltaSeconds: 12 # Next block
+    expectedAnalysis:
+      isRapidPassThrough: true
+      retentionRatio: 0.999
+      hopCount: 2
+
+  # 2. Fan-In Consolidation Pattern (Multiple addresses -> Single Collector B)
+  fan_in:
+    topologyType: "FAN_IN"
+    collectorNode: "0xB_COLLECTOR_0000000000000000000000000000"
+    sourceNodes:
+      - "0xA1_SOURCE_000000000000000000000000000000"
+      - "0xA2_SOURCE_000000000000000000000000000000"
+      - "0xA3_SOURCE_000000000000000000000000000000"
+    edges:
+      - source: "0xA1_SOURCE_000000000000000000000000000000"
+        target: "0xB_COLLECTOR_0000000000000000000000000000"
+        valueUsdt: 5000.0
+      - source: "0xA2_SOURCE_000000000000000000000000000000"
+        target: "0xB_COLLECTOR_0000000000000000000000000000"
+        valueUsdt: 7500.0
+      - source: "0xA3_SOURCE_000000000000000000000000000000"
+        target: "0xB_COLLECTOR_0000000000000000000000000000"
+        valueUsdt: 10000.0
+    expectedAnalysis:
+      inDegree: 3
+      outDegree: 0
+      totalConsolidatedUsdt: 22500.0
+
+  # 3. Fan-Out Dispersion Pattern (Single Source A -> Multiple Destinations C1, C2, C3)
+  fan_out:
+    topologyType: "FAN_OUT"
+    distributorNode: "0xA_DISTRIBUTOR_00000000000000000000000"
+    destinationNodes:
+      - "0xC1_RECIPIENT_0000000000000000000000000000"
+      - "0xC2_RECIPIENT_0000000000000000000000000000"
+      - "0xC3_RECIPIENT_0000000000000000000000000000"
+    edges:
+      - source: "0xA_DISTRIBUTOR_00000000000000000000000"
+        target: "0xC1_RECIPIENT_0000000000000000000000000000"
+        valueEth: 2.0
+      - source: "0xA_DISTRIBUTOR_00000000000000000000000"
+        target: "0xC2_RECIPIENT_0000000000000000000000000000"
+        valueEth: 2.0
+      - source: "0xA_DISTRIBUTOR_00000000000000000000000"
+        target: "0xC3_RECIPIENT_0000000000000000000000000000"
+        valueEth: 2.0
+    expectedAnalysis:
+      inDegree: 0
+      outDegree: 3
+      totalDispersedEth: 6.0
+
+  # 4. Label Exposure Topology (Sanctioned / Mixer 1-hop and 2-hop exposure)
+  label_exposure:
+    topologyType: "LABEL_EXPOSURE"
+    sanctionedAddress: "0xd90e2f925DA726b50C4Ed8D0Fb90Ad053324F31b" # OFAC Sanctioned / Tornado Cash
+    nodes:
+      - id: "0xd90e2f925DA726b50C4Ed8D0Fb90Ad053324F31b"
+        label: "OFAC_SANCTIONED"
+        riskCategory: "CRITICAL"
+      - id: "0x1HopDirectContact_0000000000000000000000"
+        label: "UNKNOWN"
+      - id: "0x2HopIndirectContact_00000000000000000000"
+        label: "UNKNOWN"
+    edges:
+      - source: "0xd90e2f925DA726b50C4Ed8D0Fb90Ad053324F31b"
+        target: "0x1HopDirectContact_0000000000000000000000"
+        distance: 1
+      - source: "0x1HopDirectContact_0000000000000000000000"
+        target: "0x2HopIndirectContact_00000000000000000000"
+        distance: 2
+    expectedAnalysis:
+      directExposure:
+        target: "0x1HopDirectContact_0000000000000000000000"
+        hopDistance: 1
+        exposureSeverity: "HIGH"
+      indirectExposure:
+        target: "0x2HopIndirectContact_00000000000000000000"
+        hopDistance: 2
+        exposureSeverity: "MEDIUM"

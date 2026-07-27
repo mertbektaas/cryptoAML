@@ -1,0 +1,67 @@
+# ==============================================================================
+# cryptoAML — Golden Normalized Movement Outputs (F0-K2-C)
+# Source: Canonical Data Model Specifications
+# License: MIT License (https://opensource.org/licenses/MIT)
+# Purpose: Golden reference outputs for normalizer and decoder contract testing
+# ==============================================================================
+
+version: "1.0.0"
+source: "Canonical Model Golden Outputs"
+license: "MIT"
+description: "Golden expected normalized movement data corresponding to raw transaction fixtures."
+
+golden_outputs:
+  # Golden output for Native Transfer
+  native_transfer_golden:
+    eventId: "g1111111-1111-1111-1111-111111111111"
+    eventType: "TOKEN_MOVEMENT"
+    chain: "ETHEREUM"
+    transactionHash: "0x8888888888888888888888888888888888888888888888888888888888888888"
+    blockNumber: 19000001
+    fromAddress: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+    toAddress: "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B"
+    tokenAddress: null
+    tokenSymbol: "ETH"
+    rawAmount: "1000000000000000000"
+    decimalAmount: 1.0
+    usdValueAtTimestamp: 3400.50
+    timestamp: "2026-07-27T10:00:00Z"
+    contractVersion: "1.0.0"
+
+  # Golden output for ERC-20 Transfer (USDT)
+  erc20_transfer_golden:
+    eventId: "g2222222-2222-2222-2222-222222222222"
+    eventType: "TOKEN_MOVEMENT"
+    chain: "ETHEREUM"
+    transactionHash: "0x7777777777777777777777777777777777777777777777777777777777777777"
+    blockNumber: 19000002
+    fromAddress: "0x1111111111111111111111111111111111111111"
+    toAddress: "0x2222222222222222222222222222222222222222"
+    tokenAddress: "0x0000000000000000000000000000000000000002"
+    tokenSymbol: "USDT"
+    rawAmount: "1000000000"
+    decimalAmount: 1000.0
+    usdValueAtTimestamp: 1000.00
+    timestamp: "2026-07-27T10:05:00Z"
+    contractVersion: "1.0.0"
+
+  # Golden output for Contract Creation Record
+  contract_creation_golden:
+    id: "g4444444-4444-4444-4444-444444444444"
+    chain: "ETHEREUM"
+    address: "0x5555555555555555555555555555555555555555"
+    creatorAddress: "0x4444444444444444444444444444444444444444"
+    creationTxHash: "0x5555555555555555555555555555555555555555555555555555555555555555"
+    isVerified: false
+    contractType: "OTHER"
+    bytecodeHash: "0x3f5c71d..."
+    schemaVersion: "1.0.0"
+    createdAt: "2026-07-27T10:15:00Z"
+
+  # Golden output for Decode Failure Record
+  decode_failure_golden:
+    id: "g5555555-5555-5555-5555-555555555555"
+    txHash: "0x4444444444444444444444444444444444444444444444444444444444444444"
+    status: "DECODE_FAILURE"
+    errorReason: "EVMSimulationError: Bad opcode or truncated calldata"
+    handledGracefully: true
