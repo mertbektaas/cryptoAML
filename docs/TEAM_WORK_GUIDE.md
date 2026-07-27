@@ -67,6 +67,18 @@ Bu kararlar F0-K1-B için temel referanstır:
   3. `@crypto-aml/policy-schema` (v1.0.0): Signal, Rule, Weight, CapFloor, Tier, Policy risk şemaları ve doğrulama fonksiyonları.
 - **Derleme ve Test**: `npm run build` ile `tsc -b` derlemesi, `npm run test` ile Node.js test runner (`node --test`) doğrulaması.
 
+## F0-K2-B Evidence ve Açıklanabilirlik Modeli Kararları (Abdullah - @acam49)
+
+- **Seçilen Mimari Yaklaşım**: **`@crypto-aml/policy-schema` İçine Zod Esaslı Evidence & Metadata Model Katmanı Ekleme**
+- **Gerekçe**: Risk değerlendirme sonuçlarının (Assessment) dayandığı somut ham verileri, tetiklenen sinyal gerekçelerini ve tekrarlanabilirlik (provenance) geçmişini tek tip güvenliği altında toplamak.
+- **Eklenen Modeller ve Yapılar**:
+  1. **EvidenceReferenceSchema**: Ham işlem, event veya yaptırım listesi referansları (`sourceType`, `referenceURI`, `observedAt`).
+  2. **QualityMetricsSchema**: `coverage` (% kapsam), `freshnessSeconds` (saniye tazelik), `finality` (kesinlik durumu) ve `confidence` (% güven skoru).
+  3. **ExplainedSignalSchema**: Tetiklenen sinyal uyarısı, zorunlu `reason`, `observedValue`, `operator`, `expectedValue`, `contribution` (% risk puanı etkisi) ve `evidenceReferences` dizisi.
+  4. **ReproducibilityMetadataSchema**: `datasetSnapshotId`, `featureVersion`, `policyVersion`, `modelVersion`, `codeCommitHash` ve `evaluatedAt` zaman damgası (Past replay / Audit izlenebilirliği).
+  5. **AssessmentExplainabilitySchema**: `Evidence → Signal → Assessment` zincirini bağlayan nihai açıklanabilirlik veri yapısı ve `validateAssessmentExplainability` fonksiyonu.
+
+
 ## F1-K1-A EVM adapter kararları
 
 Bu kararlar Mert'in EVM adapter görevinde uygulanır. Performans hedefi yalnızca
