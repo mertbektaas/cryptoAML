@@ -94,9 +94,22 @@ Bu kararlar F0-K1-B için temel referanstır:
 - **Gerekçe**: Ekip sorumluluk haritasındaki Python veri/risk liderliğine tam uyumu, Pydantic v2 ile katı tip güvenliği sunması ve ileride Makine Öğrenmesi/Risk analiz servisleriyle doğrudan yerel entegrasyonu.
 - **Mimari ve Servis Bileşenleri (`services/normalizer`)**:
   1. **`models.py`**: `@crypto-aml/canonical-schema` ve `@crypto-aml/event-contracts` ile birebir uyumlu Pydantic modelleri (`AddressModel`, `TransactionModel`, `SmartContractModel`, `NormalizedMovementEventModel`).
-  2. **`normalizer.py`**: Ham RPC payload verilerini kanonik yapılara dönüştüren ana motor. Native ETH (wei -> decimal), ERC-20 log parsing (USDT), Akıllı Kontrat Kurulum tespiti (`toAddress: null`), Idempotent mükerrer işleme engeli (`chain:txHash` cache) ve `DECODE_FAILURE` izole etme mantığı.
+  2. **`normalizer.py`**: Ham RPC payload verilerini kanonik yapılara dönüştüren ana motor. Native ETH (wei -> decimal), ERC-20 log parsing (USDT), Akıllı Kontrat Kurulum tespiti (`toAddress: null`), Idempotent mükerrer işleme engeli (`chain:txHash` cache) me mantığı.
   3. **`app.py`**: Proje sağlık sözleşmelerine tam uyumlu `/livez`, `/readyz`, `/startupz` endpoint'leri ve `/normalize` REST servisi.
 - **Test ve Otomasyon**: `services/normalizer/tests/test_normalizer.py` altında Native, ERC-20, Contract Creation, Idempotency ve Decode Failure durumlarını kapsayan testler yazıldı ve doğrulandı.
+
+## F1-K2-B Event ve Token Movement Decode Kararları (Abdullah - @acam49)
+
+- **Seçilen Mimari Yaklaşım**: **Python Normalizer İçine `EventDecoder` Modülü ve ABI Registry Katmanı Ekleme**
+- **Gerekçe**: EVM log olaylarını (ERC-20, ERC-721, ERC-1155, Uniswap DEX Swaps) harici kütüphane bağımlılığı olmaksızın yüksek performansla ayrıştırarak `NormalizedMovementEventModel` yapılarına çevirmek.
+- **Eklenen Modeller ve Decoder Bileşenleri (`services/normalizer/src/decoder.py`)**:
+  1. **EVM Topic Hashes**: Standardize `Transfer` (`0xddf252ad...`), `Approval`, `TransferSingle` (ERC-1155), `TransferBatch` ve Uniswap V2/V3 `Swap` topic imzaları.
+  2. **ERC-20 & ERC-721 Decoding**: Log topic sayısına göre 3 topic (ERC-20 miktarlı transfer) ve 4 topic (ERC-721 NFT `tokenId` transferi) ayrıştırması.
+  3. **ERC-1155 Decoding**: 128 karakterlik veri alanından token ID ve miktar çözümlemesi.
+  4. **Uniswap V2 Swap Decoding**: DEX takas olaylarından yönlü varlık aktarımlarını çıkarma.
+  5. **Decode Failure Izolasyonu**: Bozuk topic veya eksik data paketlerinde `ValueError` fırlatılarak hatanın servis loglarına kaydedilip izole edilmesi.
+- **Test ve Otomasyon**: `services/normalizer/tests/test_decoder.py` altında ERC-20, ERC-721 NFT, Uniswap Swap ve Malformed topic testleri yazıldı ve doğrulandı.
+
 
 
 

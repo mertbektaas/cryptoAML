@@ -1,7 +1,7 @@
 """
-Core Normalization Engine for cryptoAML Platform (F1-K2-A).
+Core Normalization Engine for cryptoAML Platform (F1-K2-A & F1-K2-B).
 Transforms raw RPC block/transaction payloads into canonical entities and event contracts.
-Guarantees idempotency and graceful decode failure handling.
+Guarantees idempotency, multi-token/DEX event decoding, and graceful decode failure handling.
 """
 
 import uuid
@@ -18,6 +18,7 @@ from .models import (
     NormalizedMovementEventModel,
     NormalizationResult
 )
+from .decoder import EventDecoder
 
 logger = logging.getLogger("normalizer")
 
@@ -26,6 +27,7 @@ class NormalizerEngine:
     def __init__(self):
         # In-memory idempotency cache for processed tx composite keys (chain:txHash)
         self._processed_keys: Set[str] = set()
+        self.decoder = EventDecoder()
 
     def normalize_raw_payload(
         self, payload: Dict[str, Any], correlation_id: Optional[str] = None
@@ -130,46 +132,27 @@ class NormalizerEngine:
                     )
                 )
 
-            # 4. ERC-20 Token Transfers Parsing (from logs if present)
+            # 4. EVM Logs Decoding (ERC-20, ERC-721, ERC-1155, Uniswap DEX Swaps via EventDecoder)
             logs = payload.get("logs", [])
             for log in logs:
-                topics = log.get("topics", [])
-                # Check ERC-20 Transfer Event Topic (0xddf252ad...)
-                if len(topics) >= 3 and topics[0].lower().startswith("0xddf252ad"):
-                    log_token_addr = log.get("address")
-                    # Decode from & to addresses from padded 32-byte hex topics
-                    log_from = "0x" + topics[1][-40:]
-                    log_to = "0x" + topics[2][-40:]
-                    raw_data_hex = log.get("data", "0x0")
-                    raw_token_amount = str(int(raw_data_hex, 16))
-                    # Default USDT 6 decimals
-                    decimal_amt = float(int(raw_token_amount)) / 1e6
-
-                    token_transfers.append(
-                        TokenTransferModel(
-                            token_address=log_token_addr,
-                            from_address=log_from,
-                            to_address=log_to,
-                            amount=raw_token_amount,
-                            decimal_amount=decimal_amt
-                        )
+                try:
+                    decoded_movements = self.decoder.decode_log(
+                        log, chain_str, tx_hash, block_num, ts, corr_id
                     )
+                    movements.extend(decoded_movements)
 
-                    movements.append(
-                        NormalizedMovementEventModel(
-                            chain=chain_str,
-                            transaction_hash=tx_hash,
-                            block_number=block_num,
-                            from_address=log_from,
-                            to_address=log_to,
-                            token_address=log_token_addr,
-                            token_symbol="USDT",
-                            raw_amount=raw_token_amount,
-                            decimal_amount=decimal_amt,
-                            timestamp=ts,
-                            correlation_id=corr_id
+                    for m in decoded_movements:
+                        token_transfers.append(
+                            TokenTransferModel(
+                                token_address=m.token_address,
+                                from_address=m.from_address,
+                                to_address=m.to_address,
+                                amount=m.raw_amount,
+                                decimal_amount=m.decimal_amount
+                            )
                         )
-                    )
+                except ValueError as ve:
+                    logger.warning(f"Isolating decode failure for log in tx {tx_hash}: {str(ve)}")
 
             # Construct Canonical Transaction Model
             tx_model = TransactionModel(
