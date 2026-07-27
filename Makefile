@@ -3,6 +3,8 @@ SHELL := /bin/sh
 COMPOSE_FILE := infra/compose/docker-compose.yml
 ENV_FILE := .env
 COMPOSE := docker compose --env-file $(ENV_FILE) -f $(COMPOSE_FILE)
+GO_CACHE ?= /tmp/cryptoaml-go-cache
+GO_PATH ?= /tmp/cryptoaml-go-path
 
 .DEFAULT_GOAL := help
 
@@ -38,7 +40,9 @@ build: config ## Validate the current buildable workspace skeleton.
 lint: ## Validate repository structure, shell scripts, and Compose syntax.
 	@./scripts/validate-foundation.sh
 
-test: lint ## Run foundation smoke tests.
+test: lint ## Run foundation and observability smoke tests.
+	@python3 -m unittest discover -s tests -p 'test_*.py'
+	@cd services/chain-indexer && GOCACHE=$(GO_CACHE) GOPATH=$(GO_PATH) go test ./...
 	@echo "Foundation smoke tests passed."
 
 migrate: .env ## Run registered SQL migrations; succeeds when none exist yet.

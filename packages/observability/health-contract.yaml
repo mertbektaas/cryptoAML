@@ -1,0 +1,26 @@
+version: "1.0"
+endpoints:
+  /livez:
+    purpose: process-is-alive
+    dependency_checks: false
+    success_status: 200
+    failure_status: 503
+  /readyz:
+    purpose: accepts-traffic
+    dependency_checks: true
+    success_status: 200
+    failure_status: 503
+  /startupz:
+    purpose: startup-complete
+    dependency_checks: migration-and-initialization
+    success_status: 200
+    failure_status: 503
+response:
+  required_fields:
+    - component
+    - status
+    - checks
+  statuses:
+    - ok
+    - degraded
+    - fail
