@@ -88,6 +88,17 @@ Bu kararlar F0-K1-B için temel referanstır:
   3. `tests/golden-datasets/graph-topologies.yaml` (Lisans: MIT): `rapid_pass_through` (hızlı transit), `fan_in` (toplama), `fan_out` (dağıtma) ve `label_exposure` (yaptırımlı adres 1-hop/2-hop teması) graph test verileri.
 - **Doğrulama ve Otomasyon**: `@crypto-aml/canonical-schema` paketi altına `yaml` bağımlılığı ve `fixtures.test.ts` eklenerek tüm YAML dosyalarının şemalara %100 uyumu test edildi.
 
+## F1-K2-A Kanonik Normalizasyon Kararları (Abdullah - @acam49)
+
+- **Seçilen Mimari Yaklaşım**: **Python Tabanlı Normalizer Servisi (FastAPI / Pydantic & Idempotent Transformation Engine)**
+- **Gerekçe**: Ekip sorumluluk haritasındaki Python veri/risk liderliğine tam uyumu, Pydantic v2 ile katı tip güvenliği sunması ve ileride Makine Öğrenmesi/Risk analiz servisleriyle doğrudan yerel entegrasyonu.
+- **Mimari ve Servis Bileşenleri (`services/normalizer`)**:
+  1. **`models.py`**: `@crypto-aml/canonical-schema` ve `@crypto-aml/event-contracts` ile birebir uyumlu Pydantic modelleri (`AddressModel`, `TransactionModel`, `SmartContractModel`, `NormalizedMovementEventModel`).
+  2. **`normalizer.py`**: Ham RPC payload verilerini kanonik yapılara dönüştüren ana motor. Native ETH (wei -> decimal), ERC-20 log parsing (USDT), Akıllı Kontrat Kurulum tespiti (`toAddress: null`), Idempotent mükerrer işleme engeli (`chain:txHash` cache) ve `DECODE_FAILURE` izole etme mantığı.
+  3. **`app.py`**: Proje sağlık sözleşmelerine tam uyumlu `/livez`, `/readyz`, `/startupz` endpoint'leri ve `/normalize` REST servisi.
+- **Test ve Otomasyon**: `services/normalizer/tests/test_normalizer.py` altında Native, ERC-20, Contract Creation, Idempotency ve Decode Failure durumlarını kapsayan testler yazıldı ve doğrulandı.
+
+
 
 
 ## F1-K1-A EVM adapter kararları
