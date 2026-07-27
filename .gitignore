@@ -1,0 +1,34 @@
+# macOS
+.DS_Store
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+
+# JavaScript
+node_modules/
+dist/
+coverage/
+
+# IDEs
+.idea/
+.vscode/
+
+# Logs and temporary files
+*.log
+tmp/
+.tmp/
+
+# Local infrastructure state
+.terraform/
+*.tfstate
+*.tfstate.*
