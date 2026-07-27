@@ -53,6 +53,7 @@ make help
 | PostgreSQL | Kanonik ve operasyonel ilişkisel veri | `localhost:5432` |
 | Garage | S3-compatible raw archive/object storage | `http://localhost:3900` |
 | Redpanda | Kafka-compatible dayanıklı event backbone | `localhost:19092` |
+| Neo4j Community | Graph projection ve bounded traversal | `http://localhost:7474` / `bolt://localhost:7687` |
 
 `.env.example` içindeki kimlik bilgileri yalnızca local geliştirme içindir.
 Staging veya production ortamında kullanılmamalıdır.

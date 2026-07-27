@@ -10,6 +10,10 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
+set -a
+. "$ENV_FILE"
+set +a
+
 compose() {
   docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" "$@"
 }
@@ -35,10 +39,12 @@ check_container_health() {
 check_container_health postgres
 check_container_health garage
 check_container_health redpanda
+check_container_health neo4j
 
 compose exec -T postgres sh -ec \
   'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"' >/dev/null
 compose exec -T garage /garage status >/dev/null
 compose exec -T redpanda rpk cluster info >/dev/null
+compose exec -T neo4j cypher-shell -u neo4j -p "$NEO4J_PASSWORD" "RETURN 1" >/dev/null
 
 echo "All local infrastructure checks passed."
