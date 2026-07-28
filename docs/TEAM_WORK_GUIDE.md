@@ -163,6 +163,17 @@ Bu kararlar F0-K1-B için temel referanstır:
   3. **Degree Connectivity (`analyze_target_address`)**: Girdi ve çıktı bağlantı yoğunluklarını hesaplayıp `HIGH_DEGREE_CONNECTIVITY` sinyali üretir.
 - **Test ve Otomasyon**: `tests/golden-datasets/graph-topologies.yaml` altındaki topoloji verileriyle `services/risk-engine/tests/test_graph_analytics.py` birim testleri yazıldı ve doğrulandı.
 
+## F3-K2-B Community/Cluster Risk Skorlama Kararları (Abdullah - @acam49)
+
+- **Seçilen Mimari Yaklaşım**: **`services/risk-engine/src/cluster_scoring.py` İçinde NetworkX Louvain & Connected Components Kümeleme Katmanı**
+- **Gerekçe**: Sık etkileşimde bulunan cüzdan gruplarını / topluluklarını kümeleme algoritmalarıyla ayırıp küme düzeyinde AML risk yoğunluğunu hesaplamak.
+- **Eklenen Kümeleme ve Risk Skorlama Bileşenleri (`services/risk-engine/src/cluster_scoring.py`)**:
+  1. **`detect_communities`**: Louvain Community Partitioning veya Connected Components fallback algoritması ile grafları cüzdan topluluklarına ayırma.
+  2. **`calculate_cluster_risk`**: Küme büyüklüğü (`cluster_size`), ortalama risk skoru (`average_risk_score`), tavan risk skoru (`max_risk_score`) ve yaptırımlı cüzdan oranını (`high_risk_node_ratio`) harmanlayarak `cluster_risk_density` hesaplama.
+  3. **`analyze_target_cluster`**: Yüksek risk yoğunluğuna sahip topluluk üyeleri için `CLUSTER_HIGH_RISK_EXPOSURE` (Severity: HIGH/CRITICAL) ve `CLUSTER_COMMUNITY_HUB` sinyalleri üretme.
+- **Test ve Otomasyon**: `tests/golden-datasets/graph-topologies.yaml` altındaki topoloji verileriyle `services/risk-engine/tests/test_cluster_scoring.py` birim testleri yazıldı ve doğrulandı.
+
+
 
 
 
