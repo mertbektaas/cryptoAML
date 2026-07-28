@@ -153,6 +153,17 @@ Bu kararlar F0-K1-B için temel referanstır:
   4. **`DetectorEngine`**: Tüm dedektörleri tekil veya toplu adres analizinde çalıştıran birleşik motor.
 - **Test ve Otomasyon**: `tests/golden-datasets/graph-topologies.yaml` altındaki `rapid_pass_through`, `fan_in`, `fan_out` ve `label_exposure` topoloji verileri kullanılarak `services/risk-engine/tests/test_detectors.py` altında doğrulandı.
 
+## F3-K2-A Graph Risk Metriği Kararları (Abdullah - @acam49)
+
+- **Seçilen Mimari Yaklaşım**: **`services/risk-engine/src/graph_analytics.py` İçinde NetworkX / Pure Python Graph Analytics Katmanı**
+- **Gerekçe**: Ağ yapısındaki cüzdanların ağ içi etki ve köprüleşme risklerini harici veritabanı bağımlılığı olmaksızın yüksek performansla hesaplamak.
+- **Eklenen Metrik ve Analiz Bileşenleri (`services/risk-engine/src/graph_analytics.py`)**:
+  1. **Pure Python Power Iteration PageRank (`compute_pagerank`)**: Ağdaki düğümlerin etki puanlarını (PageRank) bağımsız olarak hesaplar (`PAGERANK_HIGH_RISK`, Severity: HIGH / CRITICAL).
+  2. **Betweenness Centrality (`compute_betweenness`)**: İki farklı cüzdan kümesi arasında transit köprü gören hub cüzdanları tespit eder (`BETWEENNESS_BRIDGING_HUB`, Severity: HIGH).
+  3. **Degree Connectivity (`analyze_target_address`)**: Girdi ve çıktı bağlantı yoğunluklarını hesaplayıp `HIGH_DEGREE_CONNECTIVITY` sinyali üretir.
+- **Test ve Otomasyon**: `tests/golden-datasets/graph-topologies.yaml` altındaki topoloji verileriyle `services/risk-engine/tests/test_graph_analytics.py` birim testleri yazıldı ve doğrulandı.
+
+
 
 
 
