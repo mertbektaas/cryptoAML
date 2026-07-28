@@ -1,7 +1,7 @@
 """
-Rule Evaluation Engine for cryptoAML Platform (F2-K2-A).
+Rule Evaluation Engine for cryptoAML Platform (F2-K2-A & F2-K2-B).
 Evaluates signals against policy rules, accumulates weights, applies Cap/Floor limits,
-handles Sanction Override Caps, and maps to Risk Tiers.
+handles Sanction Override Caps, maps to Risk Tiers, and generates Explainability reports.
 """
 
 import uuid
@@ -23,6 +23,7 @@ try:
         EvaluationRequest,
         EvaluationResponse
     )
+    from .explainability import ExplainabilityGenerator
 except ImportError:
     from models import (
         SignalModel,
@@ -38,6 +39,7 @@ except ImportError:
         EvaluationRequest,
         EvaluationResponse
     )
+    from explainability import ExplainabilityGenerator
 
 logger = logging.getLogger("risk_engine")
 
@@ -45,6 +47,7 @@ logger = logging.getLogger("risk_engine")
 class RuleEvaluator:
     def __init__(self):
         self.default_policy = self._build_default_policy()
+        self.explainability_generator = ExplainabilityGenerator()
 
     def _build_default_policy(self) -> PolicyModel:
         """Constructs default enterprise risk policy if no custom policy is supplied."""
@@ -136,8 +139,8 @@ class RuleEvaluator:
 
     def evaluate_request(self, request: EvaluationRequest) -> EvaluationResponse:
         """
-        Evaluates signals against policy rules, calculates risk score and tier.
-        Returns AssessmentEventModel wrapped in EvaluationResponse.
+        Evaluates signals against policy rules, calculates risk score and tier,
+        and builds the full AssessmentExplainabilityModel report.
         """
         corr_id = request.correlation_id or str(uuid.uuid4())
         policy = request.policy or self.default_policy
@@ -214,4 +217,15 @@ class RuleEvaluator:
             correlation_id=corr_id
         )
 
-        return EvaluationResponse(success=True, assessment=assessment)
+        # Generate Explainability report
+        explainability = self.explainability_generator.generate_explainability(
+            assessment=assessment,
+            policy=policy,
+            signals=request.signals
+        )
+
+        return EvaluationResponse(
+            success=True,
+            assessment=assessment,
+            explainability=explainability
+        )

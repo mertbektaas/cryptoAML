@@ -131,6 +131,18 @@ Bu kararlar F0-K1-B için temel referanstır:
   3. **`app.py`**: Proje sağlık probes (`/livez`, `/readyz`, `/startupz`) ve `/evaluate` REST servis endpoint'i.
 - **Test ve Otomasyon**: `services/risk-engine/tests/test_risk_engine.py` altında operatör doğrulama, ağırlık birikimi, yaptırım override cap ve tier haritalama birim testleri yazıldı ve doğrulandı.
 
+## F2-K2-B Açıklanabilirlik Kararları (Abdullah - @acam49)
+
+- **Seçilen Mimari Yaklaşım**: **`services/risk-engine/src/explainability.py` İle Dahili Açıklanabilirlik Jeneratörü**
+- **Gerekçe**: Üretilen risk puanlarının "Kara Kutu" (Black Box) kalmasını önlemek, finansal denetçiler ve uyum uzmanları için şeffaf `Evidence -> Signal -> Assessment` açıklanabilirlik raporunu risk değerlendirmesi anında senkron olarak üretmek.
+- **Mimari Yapı ve Eklenen Modeller (`services/risk-engine/src/explainability.py`)**:
+  1. **`EvidenceReferenceModel`**: On-chain işlem URI'ları (`eip155:1/tx/...`) ve Yaptırım Listesi kaynakları (`ofac://sanction-list/...`).
+  2. **`QualityMetricsModel`**: Veri tazeliği (`freshness_seconds`), veri kapsama oranı (`coverage: 100.0%`), kesinlik durumu (`finality: FINAL`) ve güven skoru (`confidence: 95.0%`).
+  3. **`ExplainedSignalModel`**: Tetiklenen kural gerekçesi (`reason`), gözlemlenen değer (`observed_value`), karşılaştırma operatörü (`operator`), beklenen değer (`expected_value`) ve risk skoru katkısı (`contribution`).
+  4. **`ReproducibilityMetadataModel`**: Geçmişe dönük denetim ve tekrarlanabilirlik için `dataset_snapshot_id`, `policy_version`, `feature_version` ve `code_commit_hash` kaydı.
+- **Test ve Otomasyon**: `services/risk-engine/tests/test_explainability.py` altında tam zincir doğrulaması ve meta veri testi yazıldı ve doğrulandı.
+
+
 
 
 

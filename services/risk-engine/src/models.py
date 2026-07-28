@@ -1,5 +1,5 @@
 """
-Pydantic v2 Data Models for Risk Engine Service (F2-K2-A).
+Pydantic v2 Data Models for Risk Engine & Explainability Service (F2-K2-A & F2-K2-B).
 Matches @crypto-aml/policy-schema and @crypto-aml/event-contracts specifications.
 """
 
@@ -129,6 +129,54 @@ class AssessmentEventModel(BaseModel):
     contract_version: str = "1.0.0"
 
 
+# --- EXPLAINABILITY MODELS (F0-K2-B / F2-K2-B) ---
+
+class EvidenceReferenceModel(BaseModel):
+    source_type: str  # ON_CHAIN_TX, SANCTION_LIST, GRAPH_CLUSTER, HEURISTIC
+    reference_uri: str
+    observed_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    raw_payload_snippet: Optional[Dict[str, Any]] = None
+
+
+class QualityMetricsModel(BaseModel):
+    coverage: float = Field(default=100.0, ge=0.0, le=100.0)
+    freshness_seconds: int = Field(default=0, ge=0)
+    finality: str = "FINAL"
+    confidence: float = Field(default=95.0, ge=0.0, le=100.0)
+
+
+class ExplainedSignalModel(BaseModel):
+    signal_id: str
+    signal_code: str
+    reason: str
+    observed_value: Any
+    operator: RuleOperatorEnum
+    expected_value: Any
+    contribution: float
+    evidence_references: List[EvidenceReferenceModel] = Field(default_factory=list)
+    quality_metrics: QualityMetricsModel = Field(default_factory=QualityMetricsModel)
+
+
+class ReproducibilityMetadataModel(BaseModel):
+    dataset_snapshot_id: str = "snapshot-latest"
+    feature_version: str = "1.0.0"
+    policy_version: str = "1.0.0"
+    model_version: str = "1.0.0"
+    code_commit_hash: str = "head"
+    evaluated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
+class AssessmentExplainabilityModel(BaseModel):
+    explainability_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    assessment_id: str
+    target_address: str
+    final_risk_score: float = Field(ge=0.0, le=100.0)
+    risk_tier: RiskTierEnum
+    explained_signals: List[ExplainedSignalModel] = Field(default_factory=list)
+    reproducibility: ReproducibilityMetadataModel = Field(default_factory=ReproducibilityMetadataModel)
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
 class EvaluationRequest(BaseModel):
     target_address: str
     chain: str = "ETHEREUM"
@@ -140,4 +188,5 @@ class EvaluationRequest(BaseModel):
 class EvaluationResponse(BaseModel):
     success: bool
     assessment: Optional[AssessmentEventModel] = None
+    explainability: Optional[AssessmentExplainabilityModel] = None
     error_message: Optional[str] = None
