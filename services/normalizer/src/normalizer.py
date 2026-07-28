@@ -7,18 +7,32 @@ Guarantees idempotency, multi-token/DEX event decoding, and graceful decode fail
 import uuid
 import logging
 from typing import Dict, Any, Optional, Set
-from .models import (
-    ChainNetwork,
-    EntityType,
-    TransactionStatus,
-    AddressModel,
-    TransactionModel,
-    SmartContractModel,
-    TokenTransferModel,
-    NormalizedMovementEventModel,
-    NormalizationResult
-)
-from .decoder import EventDecoder
+try:
+    from .models import (
+        ChainNetwork,
+        EntityType,
+        TransactionStatus,
+        AddressModel,
+        TransactionModel,
+        SmartContractModel,
+        TokenTransferModel,
+        NormalizedMovementEventModel,
+        NormalizationResult
+    )
+    from .decoder import EventDecoder
+except ImportError:
+    from models import (
+        ChainNetwork,
+        EntityType,
+        TransactionStatus,
+        AddressModel,
+        TransactionModel,
+        SmartContractModel,
+        TokenTransferModel,
+        NormalizedMovementEventModel,
+        NormalizationResult
+    )
+    from decoder import EventDecoder
 
 logger = logging.getLogger("normalizer")
 

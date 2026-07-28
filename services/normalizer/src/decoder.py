@@ -6,7 +6,10 @@ Supports ERC-20, ERC-721, ERC-1155, and Uniswap V2/V3 Swap events with Decode Fa
 
 import logging
 from typing import Dict, Any, List, Optional
-from .models import NormalizedMovementEventModel
+try:
+    from .models import TokenType, NormalizedMovementEventModel
+except ImportError:
+    from models import TokenType, NormalizedMovementEventModel
 
 logger = logging.getLogger("event_decoder")
 

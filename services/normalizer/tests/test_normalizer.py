@@ -3,13 +3,18 @@ Comprehensive Test Suite for Python Normalizer Service (F1-K2-A).
 Verifies Native ETH, ERC-20, Contract Creation, Idempotency, and Decode Failures.
 """
 
+import sys
+import os
 import unittest
-from services.normalizer.src.models import (
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
+
+from models import (
     ChainNetwork,
     TransactionStatus,
     NormalizationResult
 )
-from services.normalizer.src.normalizer import NormalizerEngine
+from normalizer import NormalizerEngine
 
 
 class TestNormalizerEngine(unittest.TestCase):

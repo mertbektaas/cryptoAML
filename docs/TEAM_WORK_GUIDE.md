@@ -117,9 +117,20 @@ Bu kararlar F0-K1-B için temel referanstır:
 - **Doğrulama ve Kontrat Test Kapsamı (`tests/contract/test_normalizer_accuracy.py`)**:
   1. **`test_native_transfer_accuracy`**: ETH transfer ham fixture verisini Normalizer'a besleyip, altın çıktı ile (`decimalAmount: 1.0`, `tokenSymbol: ETH`) birebir doğrulanması.
   2. **`test_erc20_transfer_accuracy`**: ERC-20 USDT transfer verisini besleyip (`tokenAddress`, `tokenSymbol: USDT`, `decimalAmount: 1000.0`) doğrulanması.
-  3. **`test_contract_creation_accuracy`**: Akıllı kontrat kurulum verisinin tespiti ve `SmartContractModel` çıktısının doğrulanması.
+  3. **`test_contract_creation_accuracy`**: Akıllı kontrat kurulum verisinin tespiti me `SmartContractModel` çıktısının doğrulanması.
   4. **`test_decode_failure_isolation`**: Bozuk payload ve EVM simülasyon hatalarında `DECODE_FAILURE` durumunun ve hata mesajının izole edildiğinin assert edilmesi.
   5. **`test_idempotency_contract`**: Aynı ham verinin üst üste 2 kez işlenmesinde mükerrer kayıt oluşmadığının doğrulanması.
+
+## F2-K2-A Rule-Based Policy Engine Kararları (Abdullah - @acam49)
+
+- **Seçilen Mimari Yaklaşım**: **Python Tabanlı `services/risk-engine` Servisi (FastAPI + `@crypto-aml/policy-schema` Entegrasyonu)**
+- **Gerekçe**: Sinyal ve kural değerlendirmelerini Python veri ve risk analiz standartlarında yüksek performansla çalıştırmak, Pydantic v2 ile katı tip güvenliği sunmak ve Faz 7'deki Makine Öğrenmesi (ML) modellerine modüler temel hazırlamak.
+- **Mimari ve Servis Bileşenleri (`services/risk-engine`)**:
+  1. **`models.py`**: `@crypto-aml/policy-schema` ve `@crypto-aml/event-contracts` uyumlu Pydantic v2 modelleri (`SignalModel`, `RuleModel`, `WeightModel`, `CapFloorModel`, `TierModel`, `PolicyModel`, `AssessmentEventModel`).
+  2. **`evaluator.py`**: Kural değerlendirme motoru. `EQUALS`, `NOT_EQUALS`, `GREATER_THAN`, `LESS_THAN`, `CONTAINS`, `IN_LIST`, `EXISTS` operatörlerini çalıştırma, kural ağırlıklarını toplama, Cap/Floor (0-100) sınırlandırması, Yaptırımlı adres İstisnai Tavan Puanı (`apply_sanction_override_cap -> 100.0 CRITICAL`) ve `RiskTierEnum` haritalaması (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`).
+  3. **`app.py`**: Proje sağlık probes (`/livez`, `/readyz`, `/startupz`) ve `/evaluate` REST servis endpoint'i.
+- **Test ve Otomasyon**: `services/risk-engine/tests/test_risk_engine.py` altında operatör doğrulama, ağırlık birikimi, yaptırım override cap ve tier haritalama birim testleri yazıldı ve doğrulandı.
+
 
 
 

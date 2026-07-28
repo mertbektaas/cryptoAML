@@ -3,8 +3,13 @@ Unit Tests for EventDecoder Module (F1-K2-B).
 Verifies ERC-20, ERC-721, ERC-1155, and Uniswap DEX Swap Log Decoding.
 """
 
+import sys
+import os
 import unittest
-from services.normalizer.src.decoder import EventDecoder
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
+
+from decoder import EventDecoder
 
 
 class TestEventDecoder(unittest.TestCase):
