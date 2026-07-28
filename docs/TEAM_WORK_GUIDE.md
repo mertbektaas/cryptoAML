@@ -142,6 +142,18 @@ Bu kararlar F0-K1-B için temel referanstır:
   4. **`ReproducibilityMetadataModel`**: Geçmişe dönük denetim ve tekrarlanabilirlik için `dataset_snapshot_id`, `policy_version`, `feature_version` ve `code_commit_hash` kaydı.
 - **Test ve Otomasyon**: `services/risk-engine/tests/test_explainability.py` altında tam zincir doğrulaması ve meta veri testi yazıldı ve doğrulandı.
 
+## F2-K2-C İlk Detector'lar Kararları (Abdullah - @acam49)
+
+- **Seçilen Mimari Yaklaşım**: **`services/risk-engine/src/detectors.py` İçinde Modüler Dedektör Motoru ve Topoloji Test Takımı**
+- **Gerekçe**: Şüpheli para hareketlerini ve yaptırımlı adres temaslarını milisaniyeler seviyesinde yüksek performansla tespit eden modüler dedektör mimarisi kurmak.
+- **Eklenen Dedektör Sınıfları ve Modüller (`services/risk-engine/src/detectors.py`)**:
+  1. **`RapidPassThroughDetector`**: Beklemeden 300 saniye içinde gelen fonların %80'den fazlasının aktarılması durumunda `RAPID_PASS_THROUGH` sinyali üretir (Severity: HIGH).
+  2. **`StructuringDetector`**: Çoklu adreslerden tek adrese toplama (Fan-In) veya tek adresten çoklu adreslere dağıtma (Fan-Out) durumlarında `FAN_IN_STRUCTURING` ve `FAN_OUT_STRUCTURING` sinyalleri üretir (Severity: HIGH).
+  3. **`HighRiskLabelExposureDetector`**: OFAC yaptırımlı, Tornado Cash veya darknet etiketli adreslerle 1-hop / 2-hop doğrudan temas tespiti (`HIGH_RISK_LABEL_EXPOSURE`, Severity: CRITICAL).
+  4. **`DetectorEngine`**: Tüm dedektörleri tekil veya toplu adres analizinde çalıştıran birleşik motor.
+- **Test ve Otomasyon**: `tests/golden-datasets/graph-topologies.yaml` altındaki `rapid_pass_through`, `fan_in`, `fan_out` ve `label_exposure` topoloji verileri kullanılarak `services/risk-engine/tests/test_detectors.py` altında doğrulandı.
+
+
 
 
 
