@@ -173,6 +173,16 @@ Bu kararlar F0-K1-B için temel referanstır:
   3. **`analyze_target_cluster`**: Yüksek risk yoğunluğuna sahip topluluk üyeleri için `CLUSTER_HIGH_RISK_EXPOSURE` (Severity: HIGH/CRITICAL) ve `CLUSTER_COMMUNITY_HUB` sinyalleri üretme.
 - **Test ve Otomasyon**: `tests/golden-datasets/graph-topologies.yaml` altındaki topoloji verileriyle `services/risk-engine/tests/test_cluster_scoring.py` birim testleri yazıldı ve doğrulandı.
 
+## F3-K2-C Domain Doğruluk Testleri Kararları (Abdullah - @acam49)
+
+- **Seçilen Mimari Yaklaşım**: **Çözüm 1 - Saf Python / Pytest In-Memory State Machine & Contract Test Takımı**
+- **Gerekçe**: Harici sunucu/veritabanı bağımlılığı olmadan milisaniyeler seviyesinde yüksek hızda çalışan, sıfır veri kaybı ve %100 deterministik sonuç üreten alarm ve vaka doğrulama mimarisi kurmak.
+- **Eklenen Modeller ve Test Bileşenleri**:
+  1. **`services/alert-service/src/alert_domain.py`**: Alert Deduplication, Cooldown suppression (300s window), Alert Reopen ve dondurulmuş `evidence_snapshot` immutability katmanı (`ImmutableEvidenceError`).
+  2. **`services/case-service/src/case_domain.py`**: Case Lifecycle (`OPEN`, `IN_REVIEW`, `CLOSED`, `REOPENED`), Severity esaslı SLA hesaplama (CRITICAL: 2h, HIGH: 12h, MEDIUM: 24h, LOW: 48h), SLA breach kontrolü ve Analist Disposition Event loglaması.
+  3. **`tests/contract/test_domain_accuracy.py`**: Deduplication, Cooldown, Reopen, Immutability, Case SLA breach ve 50 döngülük End-to-End deterministik replay kontrat testleri.
+- **Test ve Otomasyon**: `python -m pytest tests/contract/test_domain_accuracy.py` ile tüm testler %100 başarıyla doğrulandı.
+
 
 
 
